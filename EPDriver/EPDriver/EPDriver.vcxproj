@@ -131,6 +131,7 @@
     <ClCompile Include="MiniFilter.cpp" />
     <ClCompile Include="Plugins\EventCollector\EventCollector.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Utils\Locks\EresourceLock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Filters\ProcessFilter.h" />
@@ -138,6 +139,7 @@
     <ClInclude Include="Plugins\EventCollector\EventCollector.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Utils\Collections\List.h" />
+    <ClInclude Include="Utils\Locks\EresourceLock.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

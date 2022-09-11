@@ -60,10 +60,10 @@ NTSTATUS DriverEntry(
     
     // Setup MiniFilter
     {
-        /*ret = MiniFilterRegister(DriverObject);
-        if (ret != STATUS_SUCCESS)
-            goto CLEAN_UP;*/
-        minifilter = true;
+        //ret = MiniFilter::Init(DriverObject);
+        //if (ret != STATUS_SUCCESS)
+        //    goto CLEAN_UP;
+        //minifilter = true;
     }
 
     // Init Features
@@ -85,7 +85,7 @@ NTSTATUS DriverEntry(
 
 CLEAN_UP:
     if (minifilter)
-        MiniFilterUnregister();
+        MiniFilter::Uninit();
     if (features_init)
         Delegate::Uninit();
     return ret;
@@ -103,7 +103,7 @@ void DriverUnload(
 	Delegate::Uninit();
 
     // Remove MiniFilter
-    //MiniFilterUnregister();
+    //MiniFilter::Uninit();
 
 	DbgPrint("%s() -> Done\n", __FUNCTION__);
 }
