@@ -90,10 +90,12 @@
     <ClCompile>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalDependencies>$(DDK_LIB_PATH)\fltMgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/INTEGRITYCHECK %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -107,6 +109,7 @@
     <Link>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <AdditionalDependencies>$(DDK_LIB_PATH)\fltMgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/INTEGRITYCHECK %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">

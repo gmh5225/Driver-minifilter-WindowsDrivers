@@ -47,7 +47,7 @@ NTSTATUS DriverEntry(
 	_In_ PDRIVER_OBJECT DriverObject,
 	_In_ PUNICODE_STRING RegistryPath)
 {
-	DbgPrint("%s(%p, %ws)\n", __FUNCTION__, DriverObject, RegistryPath->Buffer);
+    InfLog("%s(%p, %ws)\n", __FUNCTION__, DriverObject, RegistryPath->Buffer);
 
     NTSTATUS ret = STATUS_SUCCESS;
     bool minifilter = false;
@@ -62,15 +62,21 @@ NTSTATUS DriverEntry(
     {
         //ret = MiniFilter::Init(DriverObject);
         //if (ret != STATUS_SUCCESS)
+        //{
+        //    InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, ret, __FILE__, __LINE__);
         //    goto CLEAN_UP;
+        //}
         //minifilter = true;
     }
 
     // Init Features
     {
         ret = Delegate::Init(DriverObject, RegistryPath);
-        if (ret == STATUS_SUCCESS)
+        if (ret != STATUS_SUCCESS)
+        {
+            InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, ret, __FILE__, __LINE__);
             goto CLEAN_UP;
+        }
         features_init = true;
     }
 
@@ -78,9 +84,13 @@ NTSTATUS DriverEntry(
     {
         ret = Delegate::Start();
         if (ret != STATUS_SUCCESS)
+        {
+            InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, ret, __FILE__, __LINE__);
             goto CLEAN_UP;
+        }
     }
    
+    InfLog("%s() -> Success\n", __FUNCTION__);
 	return STATUS_SUCCESS;
 
 CLEAN_UP:
@@ -105,5 +115,5 @@ void DriverUnload(
     // Remove MiniFilter
     //MiniFilter::Uninit();
 
-	DbgPrint("%s() -> Done\n", __FUNCTION__);
+	InfLog("%s() -> Done\n", __FUNCTION__);
 }

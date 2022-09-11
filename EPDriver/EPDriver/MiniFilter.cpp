@@ -43,6 +43,7 @@ static const FLT_REGISTRATION FilterRegistration = {
 
 NTSTATUS FilterUnload(FLT_FILTER_UNLOAD_FLAGS Flags)
 {
+    DbgLog("%s()\n", __FUNCTION__);
     NTSTATUS ret = STATUS_SUCCESS;
 
     // Call Callbacks
@@ -52,7 +53,10 @@ NTSTATUS FilterUnload(FLT_FILTER_UNLOAD_FLAGS Flags)
         {
             ret = registered.Callbacks.FilterUnload(Flags);
             if (ret != STATUS_SUCCESS)
+            {
+                InfLog("%s() Key: %p -> 0x%X\n", __FUNCTION__, registered.Key, ret);
                 break;
+            }
         }
     RegisteredCallbacksLock->Release();
     if (ret != STATUS_SUCCESS)
@@ -69,15 +73,25 @@ NTSTATUS FilterUnload(FLT_FILTER_UNLOAD_FLAGS Flags)
 
 NTSTATUS MiniFilter::Init(PDRIVER_OBJECT DriverObject)
 {
+    DbgLog("%s()\n", __FUNCTION__);
     if (
         (CommunicationPorts = new List<PFLT_PORT>()) == NULL ||
         (CommunicationPortsLock = new EresourceLock()) == NULL || 
         (RegisteredCallbacks = new List<REGISTERED_CALLBACKS>()) == NULL ||
         (RegisteredCallbacksLock = new EresourceLock()) == NULL)
+    {
+        InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, STATUS_MEMORY_NOT_ALLOCATED, __FILE__, __LINE__);
         goto CLEAN_UP;
+    }
 
-    if (FltRegisterFilter(DriverObject, &FilterRegistration, &Filter) == STATUS_SUCCESS)
-        return STATUS_SUCCESS;
+    NTSTATUS ret = FltRegisterFilter(DriverObject, &FilterRegistration, &Filter);
+    if (ret != STATUS_SUCCESS)
+    {
+        InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, ret, __FILE__, __LINE__);
+        goto CLEAN_UP;
+    }
+      
+    return STATUS_SUCCESS;
 
 CLEAN_UP:
     if (CommunicationPorts)
@@ -93,6 +107,8 @@ CLEAN_UP:
 
 void MiniFilter::Uninit()
 {
+    DbgLog("%s()\n", __FUNCTION__);
+
     FltUnregisterFilter(Filter);
 
     if (CommunicationPorts)
@@ -105,8 +121,10 @@ void MiniFilter::Uninit()
         delete RegisteredCallbacksLock;
 }
 
-bool MiniFilter::Register(PVOID Key, MINIFITLER_CALLBACKS Callbacks)
+bool MiniFilter::Register(PVOID Key, MINIFITLER_CALLBACKS &Callbacks)
 {
+    DbgLog("%s()\n", __FUNCTION__);
+
     RegisteredCallbacksLock->AcquireExclusive();
     bool found = false;
     bool ret = false;
@@ -125,6 +143,8 @@ bool MiniFilter::Register(PVOID Key, MINIFITLER_CALLBACKS Callbacks)
 
 void MiniFilter::Unregister(PVOID Key)
 {
+    DbgLog("%s()\n", __FUNCTION__);
+
     RegisteredCallbacksLock->AcquireExclusive();
     auto found = RegisteredCallbacks->end();
     for (auto ite = RegisteredCallbacks->begin(); ite != RegisteredCallbacks->end(); ite++)
