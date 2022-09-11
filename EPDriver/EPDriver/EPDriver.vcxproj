@@ -130,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DriverEntry.cpp" />
+    <ClCompile Include="Filters\FileFilter.cpp" />
     <ClCompile Include="Filters\ProcessFilter.cpp" />
     <ClCompile Include="MiniFilter.cpp" />
     <ClCompile Include="Plugins\EventCollector\EventCollector.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="Utils\Locks\EresourceLock.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Filters\FileFilter.h" />
     <ClInclude Include="Filters\ProcessFilter.h" />
     <ClInclude Include="MiniFilter.h" />
     <ClInclude Include="Plugins\EventCollector\EventCollector.h" />

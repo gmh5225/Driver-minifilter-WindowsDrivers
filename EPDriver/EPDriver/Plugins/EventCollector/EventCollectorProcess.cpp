@@ -1,5 +1,8 @@
 #include <stdafx.h>
 #include "EventCollectorProcess.h"
+#include <Filters/ProcessFilter.h>
+
+static void* IdKey;
 
 static void CreateProcessNotifyRoutineEx(
     _Inout_     PEPROCESS Process,
@@ -15,28 +18,22 @@ static void CreateProcessNotifyRoutineEx(
 
 NTSTATUS EventCollectorProcess::Start()
 {
-    NTSTATUS ret = STATUS_SUCCESS;
-    bool process_create = false;
+    DbgLog("%s()\n", __FUNCTION__);
 
-    // Set ProcessCreate routine
+    // Make callbacks registration
+    ProcessFilter::Registration callbacks = {};
+    callbacks.CreateProcessNotifyRoutineEx = CreateProcessNotifyRoutineEx;
+
+    // Regsiter to ProcessFilter
+    if (!ProcessFilter::Register(&IdKey, callbacks))
     {
-        ret = PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyRoutineEx, FALSE);
-        if (ret != STATUS_SUCCESS)
-        {
-            InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, ret, __FILE__, __LINE__);
-            goto CLEAN_UP;
-        }
-        process_create = true;
+        InfLog("%s() -> error: Register\n", __FUNCTION__);
+        return STATUS_UNSUCCESSFUL;
     }
-
     return STATUS_SUCCESS;
-
-CLEAN_UP:
-    if (process_create)
-        PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyRoutineEx, TRUE);
-    return ret;
 }
 void EventCollectorProcess::Stop()
 {
-    PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyRoutineEx, TRUE);
+    DbgLog("%s()\n", __FUNCTION__);
+    ProcessFilter::Unregister(&IdKey);
 }

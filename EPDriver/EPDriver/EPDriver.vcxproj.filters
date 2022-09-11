@@ -62,6 +62,9 @@
     <ClCompile Include="Plugins\EventCollector\EventCollectorProcess.cpp">
       <Filter>Plugins\EventCollector</Filter>
     </ClCompile>
+    <ClCompile Include="Filters\FileFilter.cpp">
+      <Filter>Filters</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\Collections\List.h">
@@ -87,6 +90,9 @@
     </ClInclude>
     <ClInclude Include="Plugins\EventCollector\Events\Events.h">
       <Filter>Plugins\EventCollector\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Filters\FileFilter.h">
+      <Filter>Filters</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

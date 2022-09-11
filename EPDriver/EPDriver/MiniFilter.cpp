@@ -13,7 +13,7 @@ static PFLT_FILTER Filter = NULL;
 static List<PFLT_PORT> *CommunicationPorts = NULL;
 static EresourceLock* CommunicationPortsLock = NULL;
 
-struct REGISTERED_CALLBACKS { PVOID Key = NULL;  MINIFITLER_CALLBACKS Callbacks = {}; };
+struct REGISTERED_CALLBACKS { PVOID Key = NULL;  MiniFilter::Registration Callbacks = {}; };
 static List<REGISTERED_CALLBACKS>* RegisteredCallbacks = NULL;
 static EresourceLock* RegisteredCallbacksLock = NULL;
 
@@ -121,7 +121,7 @@ void MiniFilter::Uninit()
         delete RegisteredCallbacksLock;
 }
 
-bool MiniFilter::Register(PVOID Key, MINIFITLER_CALLBACKS &Callbacks)
+bool MiniFilter::Register(PVOID Key, Registration &Callbacks)
 {
     DbgLog("%s()\n", __FUNCTION__);
 

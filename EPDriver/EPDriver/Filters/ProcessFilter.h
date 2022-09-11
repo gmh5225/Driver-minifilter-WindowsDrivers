@@ -1,10 +1,6 @@
 #pragma once
 #include <stdafx.h>
 
-struct PROCESSFILTER_CALLBACKS {
-    PCREATE_PROCESS_NOTIFY_ROUTINE_EX CreateProcessNotifyRoutineEx = NULL;
-};
-
 class ProcessFilter
 {
 public:
@@ -13,6 +9,9 @@ public:
 	static void Stop();
 	static void Uninit();
 
-    static bool Register(PVOID Key, PROCESSFILTER_CALLBACKS &Callbacks);
+    struct Registration {
+        PCREATE_PROCESS_NOTIFY_ROUTINE_EX CreateProcessNotifyRoutineEx = NULL;
+    };
+    static bool Register(PVOID Key, Registration &Callbacks);
     static void Unregister(PVOID Key);
 };

@@ -1,30 +1,19 @@
 #include <stdafx.h>
-#include "ProcessFilter.h"
+#include "FileFilter.h"
+#include <MiniFilter.h>
 
 #include <Utils/Collections/List.h>
 #include <Utils/Locks/EresourceLock.h>
 
-struct REGISTERED_CALLBACKS { PVOID Key = NULL;  ProcessFilter::Registration Callbacks = {}; };
+static void* IdKey;
+
+struct REGISTERED_CALLBACKS { PVOID Key = NULL;  FileFilter::Registration Callbacks = {}; };
 static List<REGISTERED_CALLBACKS>* RegisteredCallbacks = NULL;
 static EresourceLock* RegisteredCallbacksLock = NULL;
 
-static void CreateProcessNotifyRoutineEx(
-    _Inout_     PEPROCESS Process,
-    _In_        HANDLE ProcessId,
-    _Inout_opt_ PPS_CREATE_NOTIFY_INFO CreateInfo
-)
-{
-    DbgLog("%s(%p, %llu, %p)\n", __FUNCTION__, Process, (ULONG_PTR)ProcessId, CreateInfo);
-    RegisteredCallbacksLock->AcquireShared();
-    for (auto& registered : *RegisteredCallbacks)
-        if (registered.Callbacks.CreateProcessNotifyRoutineEx)
-            registered.Callbacks.CreateProcessNotifyRoutineEx(Process, ProcessId, CreateInfo);
-    RegisteredCallbacksLock->Release();
-}
+// FileFilter
 
-// ProcessFilter
-
-NTSTATUS ProcessFilter::Init(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath)
+NTSTATUS FileFilter::Init(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath)
 {
     UNREFERENCED_PARAMETER(DriverObject);
     UNREFERENCED_PARAMETER(RegistryPath);
@@ -45,45 +34,36 @@ CLEAN_UP:
         delete RegisteredCallbacksLock;
     return STATUS_UNSUCCESSFUL;
 }
-NTSTATUS ProcessFilter::Start()
+NTSTATUS FileFilter::Start()
 {
-	DbgLog("%s()\n", __FUNCTION__);
-    NTSTATUS ret = STATUS_SUCCESS;
-    bool process_create = false;
+    DbgLog("%s()\n", __FUNCTION__);
 
-    // Setup ProcessCreate routine
+    // Make callbacks registration
+    MiniFilter::Registration callbacks = {};
+
+    // Regsiter to Minifilter
+    if (!MiniFilter::Register(&IdKey, callbacks))
     {
-        ret = PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyRoutineEx, FALSE);
-        if (ret != STATUS_SUCCESS)
-        {
-            InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, ret, __FILE__, __LINE__);
-            goto CLEAN_UP;
-        }
-        process_create = true;
+        InfLog("%s() -> error: Register\n", __FUNCTION__);
+        return STATUS_UNSUCCESSFUL;
     }
-
     return STATUS_SUCCESS;
-
-CLEAN_UP:
-    if (process_create)
-        PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyRoutineEx, TRUE);
-	return ret;
 }
-void ProcessFilter::Stop()
+void FileFilter::Stop()
 {
-	DbgLog("%s()\n", __FUNCTION__);
-    PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyRoutineEx, TRUE);
+    DbgLog("%s()\n", __FUNCTION__);
+    MiniFilter::Unregister(&IdKey);
 }
-void ProcessFilter::Uninit()
+void FileFilter::Uninit()
 {
-	DbgLog("%s()\n", __FUNCTION__);
+    DbgLog("%s()\n", __FUNCTION__);
     if (RegisteredCallbacks)
         delete RegisteredCallbacks;
     if (RegisteredCallbacksLock)
         delete RegisteredCallbacksLock;
 }
 
-bool ProcessFilter::Register(PVOID Key, Registration &Callbacks)
+bool FileFilter::Register(PVOID Key, Registration& Callbacks)
 {
     RegisteredCallbacksLock->AcquireExclusive();
     bool found = false;
@@ -100,7 +80,7 @@ bool ProcessFilter::Register(PVOID Key, Registration &Callbacks)
     return ret;
 
 }
-void ProcessFilter::Unregister(PVOID Key)
+void FileFilter::Unregister(PVOID Key)
 {
     RegisteredCallbacksLock->AcquireExclusive();
     auto found = RegisteredCallbacks->end();
