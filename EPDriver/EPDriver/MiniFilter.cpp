@@ -43,8 +43,22 @@ static const FLT_REGISTRATION FilterRegistration = {
 
 NTSTATUS FilterUnload(FLT_FILTER_UNLOAD_FLAGS Flags)
 {
-    UNREFERENCED_PARAMETER(Flags);
+    NTSTATUS ret = STATUS_SUCCESS;
 
+    // Call Callbacks
+    RegisteredCallbacksLock->AcquireShared();
+    for (auto& registered : *RegisteredCallbacks)
+        if (registered.Callbacks.FilterUnload)
+        {
+            ret = registered.Callbacks.FilterUnload(Flags);
+            if (ret != STATUS_SUCCESS)
+                break;
+        }
+    RegisteredCallbacksLock->Release();
+    if (ret != STATUS_SUCCESS)
+        return ret;
+
+    // Cleanup MiniFilter 
     CommunicationPortsLock->AcquireExclusive();
     for (auto& port : *CommunicationPorts)
         FltCloseCommunicationPort(port);
