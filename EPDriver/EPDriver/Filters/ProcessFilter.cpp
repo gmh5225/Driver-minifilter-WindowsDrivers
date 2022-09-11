@@ -4,17 +4,17 @@
 #include <Utils/Collections/List.h>
 #include <Utils/Locks/EresourceLock.h>
 
-struct REGISTERED_CALLBACKS { PVOID Key;  PROCESSFILTER_CALLBACKS Callbacks; };
+struct REGISTERED_CALLBACKS { PVOID Key = NULL;  PROCESSFILTER_CALLBACKS Callbacks = {}; };
 static List<REGISTERED_CALLBACKS>* RegisteredCallbacks = NULL;
 static EresourceLock* RegisteredCallbacksLock = NULL;
 
-void CreateProcessNotifyRoutineEx(
+static void CreateProcessNotifyRoutineEx(
     _Inout_     PEPROCESS Process,
     _In_        HANDLE ProcessId,
     _Inout_opt_ PPS_CREATE_NOTIFY_INFO CreateInfo
 )
 {
-    DbgLog("%s(%p, %d, %p)\n", __FUNCTION__, Process, ProcessId, CreateInfo);
+    DbgLog("%s(%p, %llu, %p)\n", __FUNCTION__, Process, (ULONG_PTR)ProcessId, CreateInfo);
     RegisteredCallbacksLock->AcquireShared();
     for (auto& registered : *RegisteredCallbacks)
         if (registered.Callbacks.CreateProcessNotifyRoutineEx)
@@ -32,7 +32,10 @@ NTSTATUS ProcessFilter::Init(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STR
     if (
         (RegisteredCallbacks = new List<REGISTERED_CALLBACKS>()) == NULL ||
         (RegisteredCallbacksLock = new EresourceLock()) == NULL)
+    {
+        InfLog("%s() -> error: 0x%X, at %s:%d\n", __FUNCTION__, STATUS_MEMORY_NOT_ALLOCATED, __FILE__, __LINE__);
         goto CLEAN_UP;
+    }
     return STATUS_SUCCESS;
 
 CLEAN_UP:

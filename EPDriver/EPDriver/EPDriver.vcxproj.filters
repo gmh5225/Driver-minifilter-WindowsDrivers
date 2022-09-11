@@ -31,6 +31,9 @@
     <Filter Include="Utils\Locks">
       <UniqueIdentifier>{344ad40f-14de-4ab7-b9fc-cf1d86306ed8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Plugins\EventCollector\Events">
+      <UniqueIdentifier>{94ed202d-689e-4440-94d7-2c3da5192ea0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="EPDriver.inf">
@@ -56,6 +59,9 @@
     <ClCompile Include="Utils\Locks\EresourceLock.cpp">
       <Filter>Utils\Locks</Filter>
     </ClCompile>
+    <ClCompile Include="Plugins\EventCollector\EventCollectorProcess.cpp">
+      <Filter>Plugins\EventCollector</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\Collections\List.h">
@@ -75,6 +81,12 @@
     </ClInclude>
     <ClInclude Include="Utils\Locks\EresourceLock.h">
       <Filter>Utils\Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugins\EventCollector\EventCollectorProcess.h">
+      <Filter>Plugins\EventCollector</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugins\EventCollector\Events\Events.h">
+      <Filter>Plugins\EventCollector\Events</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

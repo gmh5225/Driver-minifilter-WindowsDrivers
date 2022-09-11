@@ -133,6 +133,7 @@
     <ClCompile Include="Filters\ProcessFilter.cpp" />
     <ClCompile Include="MiniFilter.cpp" />
     <ClCompile Include="Plugins\EventCollector\EventCollector.cpp" />
+    <ClCompile Include="Plugins\EventCollector\EventCollectorProcess.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Utils\Locks\EresourceLock.cpp" />
   </ItemGroup>
@@ -140,6 +141,8 @@
     <ClInclude Include="Filters\ProcessFilter.h" />
     <ClInclude Include="MiniFilter.h" />
     <ClInclude Include="Plugins\EventCollector\EventCollector.h" />
+    <ClInclude Include="Plugins\EventCollector\EventCollectorProcess.h" />
+    <ClInclude Include="Plugins\EventCollector\Events\Events.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Utils\Collections\List.h" />
     <ClInclude Include="Utils\Locks\EresourceLock.h" />
